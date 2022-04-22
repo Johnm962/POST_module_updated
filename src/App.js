@@ -3,6 +3,7 @@ import './App.css';
 import Add from './components/Add';
 import List from './components/List';
 import Update from './components/Update';
+import Axios from 'axios'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 
@@ -11,67 +12,42 @@ function App() {
   const [table, setTable] = useState([])
 
  useEffect(() => {
-  getData();
+  Axios.get("https://jsonplaceholder.typicode.com/users")
+  .then((res) => {
+    setTable([...table,...res.data])
+  })
  },[])
 
- const getData = async() => {
-  await fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => response.json())
-      .then((res) => {
-        setTable(res)
- })
-}
-
- const onAdd = async (name,email) => {
-    const id = Math.floor(Math.random() * 100)
-    console.log(id)
-    await fetch('https://jsonplaceholder.typicode.com/users', {
-      method: 'POST',
-      body: JSON.stringify({
-        id:id,
-        name:name,
-        email:email,
-      }),
-      headers: {
-        "Content-type": "application/json; charset: UTF-8",
-      }
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      setTable([...table,data])
-    });
-  
+ const onAdd = (name,email) => {
+     const id = Math.random(Math.floor() * 100)
+     Axios.post(`https://jsonplaceholder.typicode.com/users`, {
+       id,
+       name,
+       email
+     }).then((res) => {
+      setTable([...table,res.data])
+     })   
   }
 
   const onUpdate = (id,name,email) => {
-    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        id:id,
-        name:name,
-        email:email,
-      }),
-      headers: {
-        "Content-type": "application/json; charset: UTF-8",
-      }
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      setTable([...table,data])
-    });
+    Axios.put(`https://jsonplaceholder.typicode.com/users/${id}`, {
+       id,
+       name,
+       email
+     }).then((res) => {
+       let newIndex = table.findIndex((ind) => ind.id === id)
+       table[newIndex] = {id:id, name:name, email:email}
+       setTable(table)
+     })   
   }
 
-  const onDelete = async(id) => {
-    await fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
-      method: 'DELETE'
-      })
+  const onDelete = (id) => {
+      Axios.delete(`https://jsonplaceholder.typicode.com/users/${id}`)
       .then((res) => {
         setTable(table.filter((obj) => obj.id !== id ))
       })
   }
   
-
-  console.log(table)
   return (
       <div className="main">
         <BrowserRouter>

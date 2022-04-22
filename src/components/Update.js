@@ -1,75 +1,51 @@
-import React, {useState,useEffect} from 'react'
-import '../App.css';
+import React, {useState} from 'react'
+import { Formik, Form} from 'formik';
+import { TextField } from './TextField';
+import * as Yup from 'yup'
 import NavBar from './NavBar';
+import '../App.css';
 
 function Update({userList,onUpdate,onDelete}) {
-
-   const [data, setdata] = useState({id:"", name:"", email:""})
-   const [errors, setErrors] = useState({});
-   const [isSubmit, setIsSubmit] = useState(false);
   
-      const onChangeHandler = (e) => {
-          const {name, value} = e.target
-          setdata({...data, [name]:value})
-      }
-      
-      const onClickHandler = (e) => {
-        e.preventDefault();
-        console.log(data)
-        onUpdate(data.id,data.name,data.email)
-        setErrors(validate(data))
-        setIsSubmit(true);
-        setTimeout(() => {
-          setdata({id:"", name:"", email:""})
-        },[2000])
-      }
-     
-      useEffect(() => {
-        if (Object.keys(errors).length === 0 && isSubmit) {
-          console.log(data);
-        }
-      }, [errors]);
+  const [initialValues, setInitialValues] = useState({id:"", name:"", email:""})
 
-      const validate = (datas) => {
-        const errors = {};
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-        if (!datas.name) {
-          errors.name = "Username is required!";
-        }
-        if (!datas.email) {
-          errors.email = "Email is required!";
-        } else if (!regex.test(datas.email)) {
-          errors.email = "This is not a valid email format!";
-        }
-        return errors;
-      };
+  const validate = Yup.object({
+    name: Yup.string().max(15, 'Must be 15 characters or less').required('Name is Required'),
+    email: Yup.string().email('Email is invalid').required('Email is required')
+   })
    
     const EditHandler = (obj) => {
-       setdata(obj)
+      console.log(obj)
+      setInitialValues({id:obj.id,name:obj.name,email:obj.email})
     }  
 
     const deleteHandler = (id) => {
       onDelete(id)
     }
 
+    const onSubmit = (values,onSubmitProps) => {
+      console.log(values)
+      onUpdate(values.id,values.name,values.email)
+      onSubmitProps.setSubmitting(false)
+      onSubmitProps.resetForm()
+    }
+
  return (
   <>
   <NavBar/>
-  <form>
-    <div className="form-group">
-      <label htmlFor="exampleInputName">Name</label>
-      <input type="text"  className="form-control" name="name" placeholder="Enter name" value={data.name}  onChange={onChangeHandler} />
-    </div>
-    <p>{errors.name}</p>
-    <div className="form-group">
-      <label htmlFor="exampleInputEmail1">Email address</label>
-      <input type="email" className="form-control" name="email" placeholder="Enter email" value={data.email}  onChange={onChangeHandler} />
-    </div>
-    <p>{errors.email}</p>
-    <button type="submit" className="btn btn-primary" onClick={onClickHandler}>Submit</button>
-   </form>
+   <Formik initialValues={initialValues} validationSchema={validate} onSubmit={onSubmit}>
+    {
+      formik => {
+       return <Form>
+        <TextField label="Name" name="name" type="text" />
+        <TextField label="Email" name="email" type="email" />
+        <button className="btn btn-primary mt-3" type="submit">Submit</button>
+        </Form>
+      }
+    } 
+   </Formik>
    <table className="table">
-    <thead className="thead-light">
+    <thead className="thead-dark">
      <tr>
       <th scope="col">Id</th>
       <th scope="col">Name</th>

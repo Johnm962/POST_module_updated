@@ -1,31 +1,51 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import { useTable } from 'react-table'
+import { COLUMNS } from './Columns'
 import NavBar from './NavBar';
+import './table.css'
 
 function List({userList}) {
-  console.log(userList)
+
+  const columns = useMemo(() => COLUMNS, [])
+  const data = useMemo(() => userList, [])
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow
+  } = useTable({
+    columns,
+    data
+  })
+
+  
   return (
     <>
     <NavBar/>
-    <table className="table">
-    <thead className="thead-light">
-     <tr>
-      <th scope="col">Id</th>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
+    <table {...getTableProps()}>
+    <thead>
+    {headerGroups.map(headerGroup => (
+     <tr {...headerGroup.getHeaderGroupProps()}>
+       {headerGroup.headers.map(column => (
+      <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+      ))}
      </tr>
+    ))}
     </thead>
-    <tbody>
-      {userList.map((obj, index) => {
-        return (
-          <tr key={index}>
-            <td>{obj.id}</td>
-            <td>{obj.name}</td>
-            <td>{obj.email}</td>
-          </tr>
-        )
-      })}
-     
-    </tbody>
+    <tbody  {...getTableBodyProps()}>
+          {rows.map(row => {
+            prepareRow(row)
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map(cell => {
+                  return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                })}
+              </tr>
+            )
+          })}
+        </tbody>
    </table>
   </> 
  );
