@@ -1,10 +1,46 @@
-import React, { useMemo } from 'react'
+import React, {useMemo } from 'react'
 import { useTable } from 'react-table'
-import { COLUMNS } from './Columns'
 import NavBar from './NavBar';
+import {Link} from 'react-router-dom'
 import './table.css'
 
-function List({userList}) {
+function List({userList,onDelete,onUpdate}) {
+  
+  const COLUMNS = [
+    {
+      Header: "Id",
+      accessor: "id"
+    },
+    {
+      Header: "Title",
+      accessor: "title"
+    },
+    {
+      Header: "Body",
+      accessor: "body"
+    },
+    {
+      Header: "Edit",
+      accessor: "edit",
+        Cell: ({ cell }) => (
+        <Link to={"/update"}><button className="btn btn-primary mt-3" onClick={() => onUpdate(cell.row.values)} >Edit</button></Link>
+        )
+    },
+    {
+      Header: "Delete",
+      accessor: "delete",
+        Cell: ({ cell }) => (
+          <button className="btn btn-primary mt-3" onClick={() =>  {
+            const confirmBox = window.confirm(
+              "Do you really want to delete this Row?"
+            )
+            if (confirmBox === true) {
+              onDelete(cell.row.values.id)
+            }
+          }} >Delete</button>
+      )
+    }
+  ]
 
   const columns = useMemo(() => COLUMNS, [])
   const data = useMemo(() => userList, [])
@@ -20,7 +56,7 @@ function List({userList}) {
     data
   })
 
-  
+
   return (
     <>
     <NavBar/>

@@ -8,7 +8,6 @@ function NavBar() {
     <ul>
       <li><Link to='/' >Add</Link></li>
       <li><Link to='/list' >List</Link></li>
-      <li><Link to='/update' >Update</Link></li>
     </ul>
   </nav>
  );

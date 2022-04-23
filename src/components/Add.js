@@ -7,18 +7,23 @@ import '../App.css';
 
 function Add({onAdd}) {
 
-   const initialValues={name: '', email: ''}
+   const initialValues={title: '', body: ''}
 
    const validate = Yup.object({
-      name: Yup.string().max(15, 'Must be 15 characters or less').required('Name is Required'),
-      email: Yup.string().email('Email is invalid').required('Email is required')
+    title: Yup.string().min(5, 'Must be 5 characters or more').max(100, 'Must be 100 characters or less').required('Title is Required'),
+    body: Yup.string().min(15, 'Must be 15 characters or more').max(500, 'Must be 150 characters or less').required('Body is required')
      })
 
    const onSubmit = (values, onSubmitProps) => {
     console.log(values)
-    onAdd(values.name,values.email)
+    const id = Math.random(Math.floor() * 100)
+    onAdd(id,values.title,values.body)
     onSubmitProps.setSubmitting(false)
     onSubmitProps.resetForm()
+    onSubmitProps.setStatus({
+      sent: true,
+      msg: "Data Added Successfull! Thanks!"
+    })
   }
 
   return (
@@ -26,17 +31,21 @@ function Add({onAdd}) {
    <NavBar/>
    <Formik initialValues={initialValues} validationSchema={validate} onSubmit={onSubmit}>
     {
-      formik => {
-        return  <Form>
-        <TextField label="Name" name="name" type="text" />
-        <TextField label="Email" name="email" type="email" />
-        <button className="btn btn-primary mt-3" type="submit">Submit</button>
+      ({ status }) => (
+        <Form>
+        <TextField label="Title" name="title" type="text" />
+        <TextField label="Body" name="body" type="text" />
+        {status && status.msg && (
+          <p className={`alert ${ status.sent ? "alert-success" : "alert-error"}`}>
+            {status.msg}
+          </p>
+          )}
+        <button className="btn btn-primary mt-3" type="submit">ADD</button>
         </Form>
-      }
-    }
+     )}
    </Formik>
   </div>
  );
-}
+} 
 
 export default Add;
